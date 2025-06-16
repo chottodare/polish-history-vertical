@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="pl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pionowa Oś Czasu: Polska w Epoce Przełomów</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto+Slab:wght@700&display=swap');
+
+        :root {
+            /* --- NOWA PALETA KOLORÓW --- */
+            --light-bg: #f1f5f9;
+            --light-text: #0f172a;
+            --light-muted-text: #475569;
+            --light-line: #cbd5e1;
+            --light-card-bg: rgba(255, 255, 255, 0.7);
+            --light-shadow: rgba(71, 85, 105, 0.15);
+
+            --dark-bg: #0a0e1a;
+            --dark-text: #f1f5f9;
+            --dark-muted-text: #cbd5e1;
+            --dark-line: #334155;
+            --dark-card-bg: #1e293b;
+            --dark-shadow: rgba(0, 0, 0, 0.3);
+            
+            --military-primary: #dc2626;
+            --military-secondary: #fca5a5;
+            --military-bg: rgba(220, 38, 38, 0.1);
+            
+            --political-primary: #2563eb;
+            --political-secondary: #93c5fd;
+            --political-bg: rgba(37, 99, 235, 0.1);
+            
+            --social-primary: #16a34a;
+            --social-secondary: #86efac;
+            --social-bg: rgba(22, 163, 74, 0.1);
+            
+            --cultural-primary: #9333ea;
+            --cultural-secondary: #c4b5fd;
+            --cultural-bg: rgba(147, 51, 234, 0.1);
+
+            --diplomatic-primary: #0891b2;
+            --diplomatic-secondary: #67e8f9;
+            --diplomatic-bg: rgba(8, 145, 178, 0.1);
+        }
+
+        .dark body {
+            background-color: var(--dark-bg);
+            background-image: linear-gradient(135deg, var(--dark-bg) 0%, #1e1b4b 100%);
+            color: var(--dark-text);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--light-text);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .timeline-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 20px;
+            position: relative;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: var(--light-line);
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+        .dark .timeline-line { background-color: var(--dark-line); }
+
+        .timeline-progress {
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 4px;
+             background-image: linear-gradient(90deg, var(--political-primary), var(--military-primary), var(--social-primary));
+             transform-origin: left;
+             transform: scaleX(0);
+             z-index: 1000;
+             transition: transform 0.1s linear;
+        }
+        
+        .timeline-event {
+            display: flex;
+            position: relative;
+            margin-bottom: 50px;
+        }
+        
+        .timeline-event:last-child { margin-bottom: 0; }
+        .timeline-event:nth-child(odd) { justify-content: flex-start; }
+        .timeline-event:nth-child(even) { justify-content: flex-end; }
+        
+        .event-card {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--light-card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            width: calc(50% - 40px);
+            min-height: 280px;
+            box-shadow: 0 20px 40px -15px var(--light-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid transparent;
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        .dark .event-card { 
+            background: var(--dark-card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px -15px var(--dark-shadow); 
+        }
+
+        .event-card.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .event-card:hover { 
+            transform: translateY(-8px) scale(1.03);
+            border-color: var(--card-primary);
+            box-shadow: 0 30px 60px -15px var(--dark-shadow);
+            z-index: 100;
+        }
+        
+        .event-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--card-primary), var(--card-secondary));
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .event-card > * { z-index: 2; position: relative; }
+
+        .event-card::after {
+            content: '';
+            position: absolute;
+            top: 30px;
+            width: 22px;
+            height: 22px;
+            background: var(--light-bg);
+            border: 5px solid var(--light-line);
+            border-radius: 50%;
+            z-index: 1;
+            transition: all 0.4s ease;
+        }
+        .dark .event-card::after {
+             background: var(--dark-bg); 
+             border-color: var(--dark-line); 
+        }
+
+        .timeline-event:nth-child(odd) .event-card::after { right: -51px; }
+        .timeline-event:nth-child(even) .event-card::after { left: -51px; }
+        
+        .event-card.is-visible::after { border-color: var(--card-primary); }
+        .event-card:hover::after { transform: scale(1.2); }
+
+        .event-card.military { --card-primary: var(--military-primary); --card-secondary: var(--military-secondary); --card-bg: var(--military-bg); }
+        .event-card.political { --card-primary: var(--political-primary); --card-secondary: var(--political-secondary); --card-bg: var(--political-bg); }
+        .event-card.social { --card-primary: var(--social-primary); --card-secondary: var(--social-secondary); --card-bg: var(--social-bg); }
+        .event-card.cultural { --card-primary: var(--cultural-primary); --card-secondary: var(--cultural-secondary); --card-bg: var(--cultural-bg); }
+        .event-card.diplomatic { --card-primary: var(--diplomatic-primary); --card-secondary: var(--diplomatic-secondary); --card-bg: var(--diplomatic-bg); }
+        
+        .event-year {
+            font-family: 'Roboto Slab', serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--card-primary), var(--card-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .event-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--light-text);
+            line-height: 1.3;
+        }
+        .dark .event-title { color: var(--dark-text); }
+
+        .event-description {
+            font-size: 1rem;
+            line-height: 1.7;
+            flex-grow: 1;
+            color: var(--light-muted-text);
+            margin-bottom: 1rem;
+        }
+        .dark .event-description { color: var(--dark-muted-text); }
+
+        .event-category {
+            display: inline-block;
+            align-self: flex-start;
+            padding: 0.4rem 1rem;
+            background: var(--card-bg);
+            color: var(--card-primary);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid var(--card-primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .header-card, .footer-card {
+            text-align: center;
+            padding: 2rem;
+            margin-bottom: 50px;
+        }
+        .header-card h1 { font-size: 3rem; font-weight: 700; font-family: 'Roboto Slab', serif; }
+        .header-card p { font-size: 1.1rem; color: var(--light-muted-text); max-width: 600px; margin: 1rem auto 0; }
+        .dark .header-card p { color: var(--dark-muted-text); }
+
+        .theme-toggle { position: fixed; top: 1.5rem; right: 1.5rem; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--light-card-bg); color: var(--light-text); box-shadow: 0 4px 10px var(--light-shadow); z-index: 1000; transition: all 0.3s ease; backdrop-filter: blur(10px); }
+        .dark .theme-toggle { background: var(--dark-card-bg); color: var(--dark-text); box-shadow: 0 4px 10px var(--dark-shadow); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .theme-toggle .moon-icon { display: none; }
+        .dark .theme-toggle .moon-icon { display: block; }
+        .dark .theme-toggle .sun-icon { display: none; }
+
+        .detail-panel-container { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.7s cubic-bezier(0.23, 1, 0.320, 1), opacity 0.5s ease, margin-top 0.7s ease; margin-top: 0; }
+        .event-card:hover .detail-panel-container { max-height: 600px; opacity: 1; margin-top: 1rem; }
+        
+        .detail-panel { padding-top: 1rem; }
+        .detail-panel h4 { font-weight: 600; color: var(--card-primary); margin-bottom: 1rem; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .detail-panel h4::before { content: ''; width: 4px; height: 20px; background: linear-gradient(180deg, var(--card-primary), var(--card-secondary)); border-radius: 2px; }
+
+        .causes-list { list-style: none; padding: 0; margin: 0; }
+        .causes-list li { padding: 0.75rem; margin-bottom: 0.5rem; background: var(--light-bg); border-left: 4px solid var(--card-primary); border-radius: 0 8px 8px 0; color: var(--light-muted-text); transition: all 0.3s ease; }
+        .dark .causes-list li { background: rgba(255, 255, 255, 0.05); color: var(--dark-muted-text); }
+        .causes-list li:hover { background: var(--card-bg); transform: translateX(5px); }
+        
+        .conclusion { margin-top: 1.5rem; font-style: italic; font-size: 0.95rem; background: var(--light-bg); border-radius: 12px; padding: 1.5rem; color: var(--light-muted-text); border: 1px solid var(--card-primary); position: relative; }
+        .dark .conclusion { background: var(--card-bg); color: var(--dark-muted-text); }
+        .conclusion::before { content: '"'; font-size: 3rem; color: var(--card-primary); position: absolute; top: -0.5rem; left: 1rem; opacity: 0.3; }
+
+        /* --- NOWE STYLE PIONOWEJ MINI-OSI CZASU --- */
+        .vertical-mini-timeline {
+            position: relative;
+            padding: 20px 0;
+            margin: 1rem 0;
+        }
+
+        .vertical-mini-timeline-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--card-primary), var(--card-secondary));
+            border-radius: 2px;
+        }
+        
+        .vertical-mini-timeline.position-left .vertical-mini-timeline-line {
+            right: 0;
+        }
+        .vertical-mini-timeline.position-right .vertical-mini-timeline-line {
+            left: 0;
+        }
+        
+        .mini-event-item {
+            display: flex;
+            align-items: center;
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .vertical-mini-timeline.position-left .mini-event-item {
+            flex-direction: row-reverse;
+        }
+
+        .mini-node {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--light-card-bg);
+            border: 4px solid var(--card-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        .dark .mini-node { background: var(--dark-card-bg); }
+
+        .mini-node:hover {
+            transform: scale(1.2);
+            background: var(--card-primary);
+        }
+
+        .mini-event-year {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--light-muted-text);
+        }
+        .dark .mini-event-year {
+            color: var(--dark-muted-text);
+        }
+        .vertical-mini-timeline.position-left .mini-event-year {
+            margin-right: 1rem;
+        }
+        .vertical-mini-timeline.position-right .mini-event-year {
+            margin-left: 1rem;
+        }
+        
+        .mini-tooltip {
+            visibility: hidden;
+            width: 180px;
+            background: var(--dark-card-bg);
+            color: var(--dark-text);
+            text-align: left;
+            border-radius: 8px;
+            padding: 0.75rem;
+            position: absolute;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            border: 2px solid var(--card-primary);
+            box-shadow: 0 10px 30px var(--dark-shadow);
+            pointer-events: none;
+            transform: scale(0.9);
+            font-size: 0.8rem;
+        }
+        .mini-node:hover .mini-tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .mini-tooltip::after {
+            content: "";
+            position: absolute;
+            border-width: 8px;
+            border-style: solid;
+        }
+        
+        /* Tooltip dla kart po LEWEJ (oś po PRAWEJ, tooltip po LEWEJ) */
+        .vertical-mini-timeline.position-left .mini-tooltip {
+            top: 50%;
+            right: calc(100% + 15px);
+            transform-origin: right center;
+            transform: translateY(-50%) scale(0.9);
+        }
+        .vertical-mini-timeline.position-left .mini-node:hover .mini-tooltip {
+            transform: translateY(-50%) scale(1);
+        }
+        .vertical-mini-timeline.position-left .mini-tooltip::after {
+            top: 50%;
+            left: 100%;
+            transform: translateY(-50%);
+            border-color: transparent transparent transparent var(--card-primary);
+        }
+        
+        /* Tooltip dla kart po PRAWEJ (oś po LEWEJ, tooltip po PRAWEJ) */
+        .vertical-mini-timeline.position-right .mini-tooltip {
+            top: 50%;
+            left: calc(100% + 15px);
+            transform-origin: left center;
+            transform: translateY(-50%) scale(0.9);
+        }
+        .vertical-mini-timeline.position-right .mini-node:hover .mini-tooltip {
+            transform: translateY(-50%) scale(1);
+        }
+        .vertical-mini-timeline.position-right .mini-tooltip::after {
+            top: 50%;
+            right: 100%;
+            transform: translateY(-50%);
+            border-color: transparent var(--card-primary) transparent transparent;
+        }
+        
+        @media (max-width: 768px) {
+            .timeline-line { left: 20px; }
+            .timeline-event:nth-child(odd), .timeline-event:nth-child(even) { justify-content: flex-start; }
+            .event-card { width: calc(100% - 40px); margin-left: 40px; }
+            .timeline-event .event-card::after, .timeline-event:nth-child(odd) .event-card::after, .timeline-event:nth-child(even) .event-card::after { left: -31px; }
+
+            /* Na mobile mini-oś zawsze po lewej, tooltipy po prawej */
+            .vertical-mini-timeline.position-left, .vertical-mini-timeline.position-right {
+                flex-direction: row;
+            }
+            .vertical-mini-timeline.position-left .vertical-mini-timeline-line,
+            .vertical-mini-timeline.position-right .vertical-mini-timeline-line {
+                left: 0;
+                right: auto;
+            }
+             .vertical-mini-timeline.position-left .mini-tooltip,
+             .vertical-mini-timeline.position-right .mini-tooltip {
+                left: calc(100% + 15px); right: auto;
+            }
+             .vertical-mini-timeline.position-left .mini-tooltip::after,
+             .vertical-mini-timeline.position-right .mini-tooltip::after {
+                right: 100%; left: auto; border-color: transparent var(--card-primary) transparent transparent;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="timeline-progress" id="timeline-progress"></div>
+
+    <button id="theme-toggle" class="theme-toggle" title="Przełącz motyw">
+        <svg class="sun-icon h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+        <svg class="moon-icon h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+    </button>
+    
+    <div class="timeline-container" id="timeline-container">
+        <div class="timeline-line"></div>
+        <div id="timeline-content">
+            <!-- Zawartość osi czasu będzie generowana dynamicznie przez JavaScript -->
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const timelineEvents = [
+                { type: 'header' },
+                { id: 'kongres-wiedenski', year: '1815', title: 'Królestwo Polskie', description: 'Po klęsce Napoleona, Kongres Wiedeński tworzy Królestwo Polskie z liberalną konstytucją, lecz pod berłem cara Rosji.', card_type: 'diplomatic', category: 'Dyplomacja' },
+                { id: 'powstanie-listopadowe', year: '1830-31', title: 'Powstanie Listopadowe', description: 'W odpowiedzi na łamanie konstytucji, wybucha zryw zbrojny, który przekształca się w regularną wojnę polsko-rosyjską.', card_type: 'military', category: 'Konflikt Zbrojny' },
+                { id: 'wielka-emigracja', year: '1832', title: 'Wielka Emigracja i represje', description: 'Klęska powstania skutkuje likwidacją autonomii i początkiem masowej emigracji elit politycznych i kulturalnych na Zachód.', card_type: 'social', category: 'Społeczeństwo' },
+                { id: 'rabacja', year: '1846', title: 'Powstanie Krakowskie i Rabacja', description: 'Próba ogólnonarodowego zrywu zostaje zdławiona, m.in. przez inspirowane przez Austriaków krwawe wystąpienia chłopskie w Galicji.', card_type: 'military', category: 'Konflikt Zbrojny' },
+                { id: 'powstanie-styczniowe', year: '1863-64', title: 'Powstanie Styczniowe', description: 'Najdłuższy zryw narodowy o charakterze partyzanckim, wspierany przez fenomen Tajnego Państwa Polskiego.', card_type: 'military', category: 'Konflikt Zbrojny' },
+                { id: 'kraj-nadwislanski', year: '1864', title: 'Kraj Nadwiślański i rusyfikacja', description: 'Po upadku powstania, resztki autonomii Królestwa Polskiego zostają zlikwidowane, a na ziemiach zaboru rosyjskiego nasila się bezwzględna rusyfikacja.', card_type: 'political', category: 'Polityka' },
+                { id: 'pow', year: '1918', title: 'Odzyskanie Niepodległości', description: 'Po 123 latach Polska odradza się jako państwo. Kluczową rolę w tworzeniu siły zbrojnej odgrywa Polska Organizacja Wojskowa (POW).', card_type: 'social', category: 'Społeczeństwo' },
+                { id: 'walka-o-granice', year: '1918-21', title: 'Walka o Granice', description: 'Młode państwo toczy boje o swój terytorialny kształt, m.in. w wojnie z Ukrainą, bolszewicką Rosją i w Powstaniach Śląskich.', card_type: 'military', category: 'Konflikt Zbrojny' },
+                { id: 'bitwa-warszawska', year: '1920', title: 'Bitwa Warszawska', description: 'Decydujące zwycięstwo Wojska Polskiego nad Armią Czerwoną, które ratuje niepodległość Polski i zatrzymuje marsz komunizmu na Zachód.', card_type: 'military', category: 'Konflikt Zbrojny' },
+                { id: 'iii-powstanie-slaskie', year: '1921', title: 'III Powstanie Śląskie', description: 'Zryw zbrojny pod wodzą Wojciecha Korfantego, który doprowadza do korzystniejszego dla Polski podziału przemysłowego Górnego Śląska.', card_type: 'military', category: 'Konflikt Zbrojny' },
+                { id: 'planowanie-wojenne', year: '1935-39', title: 'Planowanie Wojenne', description: 'W obliczu rosnącego zagrożenia, Sztab Główny opracowuje zaawansowane plany mobilizacyjne ("W") i operacyjne ("Zachód", "Wschód").', card_type: 'political', category: 'Polityka' },
+                { id: 'agresja-1939', year: '1939', title: 'Podwójna Agresja', description: 'Pakt Ribbentrop-Mołotow przypieczętowuje los Polski. Wrzesień przynosi atak Niemiec (1 IX) i ZSRR (17 IX).', card_type: 'military', category: 'Konflikt Zbrojny' },
+                { id: 'ppp', year: '1939-45', title: 'Polskie Państwo Podziemne', description: 'W okupowanym kraju powstaje fenomen na skalę Europy – tajne państwo z własną armią (AK), administracją i sądownictwem.', card_type: 'social', category: 'Społeczeństwo' },
+                { id: 'akcja-burza', year: '1944', title: 'Akcja „Burza” i Powstanie Warszawskie', description: 'Heroiczna próba wyzwolenia kraju siłami Armii Krajowej, by wystąpić w roli suwerennego gospodarza przed Armią Czerwoną.', card_type: 'military', category: 'Konflikt Zbrojny' },
+                { id: 'jalta-poczdam', year: '1945', title: 'Jałta i Poczdam', description: 'Na konferencjach Wielkiej Trójki alianci decydują o losie Polski, oddając ją w strefę wpływów ZSRR i sankcjonując nowe granice.', card_type: 'diplomatic', category: 'Dyplomacja' },
+                { id: 'utrwalenie-wladzy', year: '1944-47', title: 'Utrwalenie Władzy Komunistów', description: 'Przy wsparciu ZSRR, komuniści poprzez terror (proces 16), fałszerstwa i reformę rolną, eliminują opozycję i przejmują pełnię władzy.', card_type: 'political', category: 'Polityka' },
+                { id: 'solidarnosc', year: '1980-81', title: '"Solidarność" i Stan Wojenny', description: 'W odpowiedzi na kryzys powstaje 10-milionowy ruch społeczny "Solidarność". Zostaje brutalnie stłumiony stanem wojennym.', card_type: 'social', category: 'Społeczeństwo' },
+                { id: 'okragly-stol', year: '1989', title: 'Okrągły Stół i Wybory 4 Czerwca', description: 'Wymuszone przez strajki rozmowy prowadzą do częściowo wolnych wyborów, które kończą się kompromitacją władzy i rozpoczynają demontaż systemu.', card_type: 'political', category: 'Polityka' },
+                { id: 'iii-rp', year: '1990', title: 'Symboliczny Początek III RP', description: 'Lech Wałęsa zostaje pierwszym powszechnie wybranym prezydentem, a Ryszard Kaczorowski przekazuje mu insygnia władzy II RP.', card_type: 'social', category: 'Społeczeństwo' },
+                { type: 'footer' }
+            ];
+            
+            const timelineData = {
+                 'kongres-wiedenski': { causes: ['Klęska Napoleona i potrzeba nowego ładu w Europie.', 'Dążenie mocarstw do trwałego uporządkowania sprawy polskiej.', 'Wpływy cara Aleksandra I, który chciał stworzyć marionetkowe państwo polskie.'], events: [{date:'1815', text:'Utworzenie Królestwa Polskiego z liberalną konstytucją.'}, {date:'1815', text:'Car Rosji zostaje królem Polski (unia personalna).'}, {date:'1815-30', text:'Stopniowe łamanie konstytucji i ograniczanie autonomii.'}], conclusion: 'Utworzenie Królestwa Polskiego było kompromisem, który dawał Polakom pozory państwowości, ale jego nietrwałość i zależność od Rosji stały się bezpośrednią przyczyną wybuchu Powstania Listopadowego.' },
+                 'powstanie-listopadowe': { causes: ['Łamanie konstytucji przez cara Mikołaja I.', 'Brutalne rządy ks. Konstantego w armii.', 'Inspiracja rewolucjami w Europie.'], events: [{date:'29 XI 1830', text:'Noc Listopadowa i atak na Belweder.'}, {date:'25 I 1831', text:'Detronizacja cara Mikołaja I przez Sejm.'}, {date:'V 1831', text:'Klęska pod Ostrołęką.'}, {date:'IX 1831', text:'Kapitulacja Warszawy.'}], conclusion: 'Militarna klęska powstania doprowadziła do drastycznych represji, likwidacji autonomii Królestwa Polskiego i powstania Wielkiej Emigracji, która przeniosła polskie życie polityczne na Zachód.' },
+                 'wielka-emigracja': { causes: ['Klęska Powstania Listopadowego.', 'Obawa przed represjami, aresztowaniami i zsyłkami na Sybir.', 'Chęć kontynuowania walki o niepodległość na emigracji.'], events: [{date:'1832', text:'Wprowadzenie Statutu Organicznego zamiast konstytucji.'}, {date:'1832', text:'Rozwiązanie Sejmu i armii polskiej.'}, {date:'1832-48', text:'Działalność polityczna i kulturalna w Paryżu (np. Hotel Lambert, Adam Mickiewicz).'}], conclusion: 'Emigracja ocaliła ciągłość polskiej myśli politycznej i kultury, ale jednocześnie pogłębiła rozłam między krajem a wychodźstwem. Jej idee miały kluczowy wpływ na kolejne pokolenia walczące o wolność.' },
+                 'rabacja':{ causes: ['Narastające napięcia społeczne między szlachtą a chłopami.', 'Przygotowania do ogólnonarodowego powstania przeciw zaborcom.', 'Cyniczna polityka władz austriackich.'], events: [{date:'II 1846', text:'Wybuch Powstania Krakowskiego.'}, {date:'II-III 1846', text:'Rzeź galicyjska (rabacja) pod wodzą Jakuba Szeli.'}, {date:'III 1846', text:'Upadek powstania i likwidacja Rzeczypospolitej Krakowskiej.'}], conclusion: 'Wydarzenia te pokazały głębokie podziały w polskim społeczeństwie i łatwość, z jaką zaborcy potrafili wykorzystać antagonizmy społeczne do tłumienia dążeń niepodległościowych. Była to trauma na pokolenia.' },
+                 'powstanie-styczniowe': { causes: ['Nasilenie rosyjskich represji po "odwilży".', 'Brutalne tłumienie manifestacji patriotycznych.', 'Branka ogłoszona przez Wielopolskiego jako bezpośredni zapalnik.'], events: [{date:'22 I 1863', text:'Wybuch powstania i Manifest Rządu Narodowego.'}, {date:'1863-64', text:'Funkcjonowanie Tajnego Państwa Polskiego.'}, {date:'III 1864', text:'Dekret uwłaszczeniowy cara Aleksandra II.'}, {date:'VIII 1864', text:'Stracenie Romualda Traugutta.'}], conclusion: 'Klęska powstania spowodowała zwrot od walki zbrojnej ku pracy organicznej i pozytywizmowi. Carskie uwłaszczenie chłopów, choć miało cele polityczne, trwale zmieniło polską wieś.' },
+                 'kraj-nadwislanski': { causes: ['Upadek Powstania Styczniowego.', 'Dążenie Rosji do całkowitej unifikacji ziem polskich z Imperium.', 'Chęć ukarania Polaków i zniszczenia wszelkich przejawów odrębności.'], events: [{date:'1864', text:'Likwidacja resztek autonomii.'}, {date:'1869', text:'Likwidacja Szkoły Głównej Warszawskiej.'}, {date:'Lata 80.', text:'"Noc apuchtinowska" - szczyt rusyfikacji w szkolnictwie.'}], conclusion: 'Okres ten to czas najcięższych represji i próby całkowitego wynarodowienia. Mimo to, w podziemiu i legalnych formach (praca organiczna) polskość przetrwała, by odrodzić się w sprzyjających warunkach.' },
+                 'pow': { causes: ['Rozpad państw zaborczych pod koniec I WŚ.', 'Potrzeba posiadania własnej siły zbrojnej do walki o niepodległość.', 'Działalność Józefa Piłsudskiego i środowisk niepodległościowych.'], events: [{date:'1914', text:'Utworzenie POW przez Józefa Piłsudskiego.'}, {date:'XI 1918', text:'Rozbrajanie żołnierzy niemieckich i austriackich.'}, {date:'XI 1918', text:'Tworzenie zrębów Wojska Polskiego z członków POW.'}], conclusion: 'Działalność POW była kluczowa w momencie przełomu. Zapewniła nowo powstałemu państwu kadry i struktury wojskowe, niezbędne do obrony świeżo odzyskanej niepodległości.' },
+                 'walka-o-granice': { causes: ['Brak jasno określonych granic po I WŚ.', 'Konflikty z sąsiadami.', 'Dążenie do zjednoczenia ziem zamieszkałych przez Polaków.'], events: [{date:'1918-19', text:'Wojna polsko-ukraińska o Lwów.'}, {date:'1919-21', text:'Wojna polsko-bolszewicka.'}, {date:'1919, 1920, 1921', text:'Trzy Powstania Śląskie i plebiscyt.'}], conclusion: 'Granice II RP nie były dane, lecz zostały wywalczone zbrojnie i dyplomatycznie. Był to heroiczny wysiłek, który zdefiniował kształt terytorialny państwa na kolejne 20 lat.' },
+                 'bitwa-warszawska': { causes: ['Ofensywa Armii Czerwonej dążącej do "eksportu rewolucji".', 'Zagrożenie niepodległości Polski i całej Europy.', 'Strategiczny odwrót wojsk polskich.'], events: [{date:'12-25 VIII 1920', text:'Walki na przedpolach Warszawy.'}, {date:'16 VIII 1920', text:'Kontruderzenie znad Wieprza.'}, {date:'1920', text:'Klęska i odwrót wojsk Tuchaczewskiego.'}], conclusion: '"Cud nad Wisłą" jest uznawany za jedną z najważniejszych bitew w historii świata. Ocalił Polskę i zatrzymał pochód komunizmu na Zachód, ugruntowując polską państwowość.' },
+                 'iii-powstanie-slaskie':{ causes: ['Niekorzystny dla Polski wynik plebiscytu.', 'Niemiecki terror wobec ludności polskiej.', 'Dążenie do przyłączenia kluczowego regionu przemysłowego.'], events: [{date:'V-VII 1921', text:'Wybuch i walki III Powstania Śląskiego.'}, {date:'1921', text:'Przywództwo Wojciecha Korfantego.'}, {date:'1921', text:'Interwencja mocarstw i decyzja Ligi Narodów.'}], conclusion: 'Mimo że militarnie nierozstrzygnięte, powstanie odniosło ogromny sukces polityczny. Wpłynęło na decyzję Rady Ambasadorów o korzystniejszym dla Polski podziale Śląska.' },
+                 'planowanie-wojenne': { causes: ['Rosnące zagrożenie ze strony Niemiec i ZSRR.', 'Potrzeba przygotowania państwa i armii do wojny.', 'Analiza doświadczeń z I Wojny Światowej.'], events: [{date:'1935', text:'Początek prac nad planem mobilizacyjnym "W".'}, {date:'1938', text:'Wejście w życie planu "W".'}, {date:'III 1939', text:'Tajna mobilizacja alarmowa.'}, {date:'V 1939', text:'Aktualizacja planu - "W2".'}], conclusion: 'Polska myśl strategiczna stała na wysokim poziomie. Tragedia 1939 nie wynikała z braku planowania, lecz z miażdżącej przewagi wrogów i zdrady sojuszników.' },
+                 'agresja-1939': { causes: ['Pakt Ribbentrop-Mołotow (IV rozbiór Polski)', 'Ekspansjonistyczna polityka III Rzeszy', 'Bierność mocarstw zachodnich'], events: [{date:'1 IX', text:'Atak Niemiec.'}, {date:'9-18 IX', text:'Bitwa nad Bzurą.'}, {date:'17 IX', text:'Agresja ZSRR.'}, {date:'28 IX', text:'Traktat o granicy i przyjaźni.'}], conclusion: 'Wrzesień 1939 był nieuniknioną konsekwencją sojuszu dwóch totalitaryzmów. Rozpoczęła się ludobójcza okupacja, która wymusiła powstanie Państwa Podziemnego.' },
+                 'ppp':{ causes: ['Brutalność i ludobójczy charakter okupacji.', 'Likwidacja polskich elit i instytucji.', 'Chęć kontynuowania walki i zachowania ciągłości państwa.'], events: [{date:'IX 1939', text:'Powstanie Służby Zwycięstwu Polski (później AK).'}, {date:'1939', text:'Utworzenie Rządu RP na Uchodźstwie.'}, {date:'1939-45', text:'Działalność wywiadu, dywersji, tajnego nauczania.'}], conclusion: 'Polskie Państwo Podziemne było odpowiedzią na próbę unicestwienia narodu. Jego istnienie i skala działania były fenomenem, który pozwolił zachować ciągłość państwa.' },
+                 'akcja-burza': { causes: ['Zbliżanie się frontu wschodniego.', 'Dążenie do wyzwolenia kraju własnymi siłami.', 'Chęć wystąpienia w roli suwerennego gospodarza wobec Armii Czerwonej.'], events: [{date:'VII 1944', text:'Operacja "Ostra Brama" (Wilno).'}, {date:'1 VIII 1944', text:'"Godzina W" - wybuch Powstania Warszawskiego.'}, {date:'2 X 1944', text:'Kapitulacja powstania po 63 dniach.'}], conclusion: 'Klęska militarna Powstania Warszawskiego i cyniczna postawa Stalina ułatwiły sowietyzację Polski. Była to jednak manifestacja woli niepodległości o ogromnym znaczeniu moralnym.' },
+                 'jalta-poczdam': { causes: ['Dominująca pozycja militarna ZSRR w Europie Wschodniej.', 'Słabość i ustępliwość zachodnich aliantów.', 'Chęć utrzymania jedności Wielkiej Trójki.'], events: [{date:'II 1945', text:'Konferencja w Jałcie.'}, {date:'VI 1945', text:'"Proces szesnastu" przywódców PPP.'}, {date:'VII-VIII 1945', text:'Konferencja w Poczdamie.'}], conclusion: 'Polska utraciła suwerenność nie w wyniku przegranej wojny, lecz na skutek decyzji swoich sojuszników. Konferencje usankcjonowały porządek, w którym Polska stała się państwem zależnym od ZSRR.' },
+                 'utrwalenie-wladzy': { causes: ['Realizacja ustaleń z Jałty.', 'Wsparcie militarne i polityczne ZSRR.', 'Terror aparatu bezpieczeństwa (UB i NKWD).'], events: [{date:'1944', text:'Reforma Rolna PKWN.'}, {date:'VI 1946', text:'Sfałszowane referendum "3 x TAK".'}, {date:'I 1947', text:'Sfałszowane wybory do Sejmu.'}], conclusion: 'Komuniści przejęli władzę nie dzięki poparciu społecznemu, lecz poprzez terror i fałszerstwa. Był to zaplanowany proces, który doprowadził do powstania PRL.' },
+                 'solidarnosc': { causes: ['Głęboki kryzys gospodarczy.', 'Wybór Karola Wojtyły na papieża (1978).', 'Pamięć o stłumionych protestach robotniczych.'], events: [{date:'VIII 1980', text:'Porozumienia Sierpniowe.'}, {date:'13 XII 1981', text:'Wprowadzenie stanu wojennego.'}, {date:'1982-88', text:'Działalność w podziemiu.'}], conclusion: '"Solidarność" pokazała siłę zorganizowanego społeczeństwa. Mimo delegalizacji, jej duch przetrwał i stał się siłą napędową zmian w 1989 roku.' },
+                 'okragly-stol': { causes: ['Bankructwo gospodarki PRL.', 'Fala strajków w 1988 roku.', 'Zmiany w ZSRR (pierestrojka Gorbaczowa).'], events: [{date:'II-IV 1989', text:'Obrady Okrągłego Stołu.'}, {date:'4 VI 1989', text:'Wybory kontraktowe.'}, {date:'24 VIII 1989', text:'Rząd T. Mazowieckiego.'}], conclusion: 'Okrągły Stół był kompromisem wymuszonym przez kryzys. Jego logika została jednak przełamana przez wolę społeczeństwa w wyborach, co otworzyło drogę do pełnej suwerenności.' },
+                 'iii-rp':{ causes: ['Zwycięstwo "Solidarności" w wyborach czerwcowych.', 'Rozpad bloku sowieckiego.', 'Dążenie do pełnej suwerenności i demokracji.'], events: [{date:'XII 1989', text:'Nowela grudniowa konstytucji.'}, {date:'1990', text:'Wybory prezydenckie wygrane przez L. Wałęsę.'}, {date:'XII 1990', text:'Przekazanie insygniów władzy II RP.'}], conclusion: 'Był to symboliczny akt domknięcia procesu transformacji. Polska, po dekadach zależności, wracała na mapę suwerennych, demokratycznych państw Europy.' }
+            };
+
+            const createDetailPanel = (eventId, category, position) => {
+                const data = timelineData[eventId];
+                if (!data) return '';
+                
+                const miniTimelineHTML = `
+                    <div class="vertical-mini-timeline position-${position}">
+                        <div class="vertical-mini-timeline-line"></div>
+                        ${data.events.map(event => `
+                            <div class="mini-event-item">
+                                <span class="mini-event-year">${event.date}</span>
+                                <div class="mini-node">
+                                    <div class="mini-tooltip">${event.text}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                return `
+                    <div class="detail-panel">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                            <div class="causes-and-conclusion order-2 ${position === 'left' ? 'md:order-1' : 'md:order-3'}">
+                                <h4>Przyczyny</h4>
+                                <ul class="causes-list">${data.causes.map(item => `<li>${item}</li>`).join('')}</ul>
+                                <p class="conclusion">${data.conclusion}</p>
+                            </div>
+                            <div class="order-1 md:order-2">
+                                <h4>Kluczowe Daty</h4>
+                                ${miniTimelineHTML}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            };
+
+            const buildTimeline = () => {
+                const timelineContentEl = document.getElementById('timeline-content');
+                if (!timelineContentEl) return;
+                
+                let eventCardIndex = 0;
+                let timelineHTML = timelineEvents.map(event => {
+                    if (event.type === 'header' || event.type === 'footer') {
+                        return `
+                            <div class="${event.type}-card">
+                                <h1>${event.type === 'header' ? 'Polska w Epoce Przełomów' : ''}</h1>
+                                <p>${event.type === 'header' ? 'Interaktywna oś czasu kluczowych wydarzeń, które ukształtowały współczesną Polskę – od upadku Napoleona po narodziny III Rzeczypospolitej.' : 'Dotarłeś do końca tej historycznej podróży.'}</p>
+                                ${event.type === 'footer' ? '<h2 class="text-2xl font-bold mt-4">Koniec podróży</h2>' : ''}
+                            </div>`;
+                    } else {
+                        eventCardIndex++;
+                        const position = (eventCardIndex % 2 !== 0) ? 'left' : 'right';
+                        return `
+                        <div class="timeline-event">
+                            <div class="event-card ${event.card_type || ''}" data-event-id="${event.id}">
+                                <div class="event-category">${event.category}</div>
+                                <div class="event-year">${event.year}</div>
+                                <div class="event-title">${event.title}</div>
+                                <p class="event-description">${event.description}</p>
+                                <div class="detail-panel-container">
+                                   ${createDetailPanel(event.id, event.category, position)}
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                    }
+                }).join('');
+
+                timelineContentEl.innerHTML = timelineHTML;
+            };
+
+            const setupEventListeners = () => {
+                const toggleButton = document.getElementById('theme-toggle');
+                const htmlEl = document.documentElement;
+                const timelineProgress = document.getElementById('timeline-progress');
+
+                if (!toggleButton || !htmlEl) return;
+
+                toggleButton.addEventListener('click', () => {
+                    htmlEl.classList.toggle('dark');
+                    localStorage.setItem('theme', htmlEl.classList.contains('dark') ? 'dark' : 'light');
+                });
+
+                if (localStorage.getItem('theme') !== 'light') {
+                    htmlEl.classList.add('dark');
+                } else {
+                    htmlEl.classList.remove('dark');
+                }
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                document.querySelectorAll('.event-card').forEach(card => {
+                    if(card) observer.observe(card)
+                });
+
+                window.addEventListener('scroll', () => {
+                    if(!timelineProgress) return;
+                    const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+                    if (scrollableHeight > 0) {
+                        const progress = window.scrollY / scrollableHeight;
+                        timelineProgress.style.transform = `scaleX(${progress})`;
+                    }
+                });
+
+                 document.addEventListener('keydown', (e) => {
+                    if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End'].includes(e.key)) {
+                        e.preventDefault();
+                    }
+                    if (e.key === 'ArrowDown') window.scrollBy({ top: 100, behavior: 'smooth' });
+                    if (e.key === 'ArrowUp') window.scrollBy({ top: -100, behavior: 'smooth' });
+                    if (e.key === 'PageDown') window.scrollBy({ top: window.innerHeight * 0.9, behavior: 'smooth' });
+                    if (e.key === 'PageUp') window.scrollBy({ top: -window.innerHeight * 0.9, behavior: 'smooth' });
+                    if (e.key === 'Home') window.scrollTo({ top: 0, behavior: 'smooth' });
+                    if (e.key === 'End') window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                });
+            };
+
+            const initApp = () => {
+                buildTimeline();
+                setupEventListeners();
+            };
+            
+            initApp();
+        });
+    </script>
+</body>
+</html>
